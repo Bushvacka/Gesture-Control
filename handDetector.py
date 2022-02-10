@@ -2,7 +2,7 @@ import cv2 # Image procesing
 import mediapipe as mp # Hand tracking model
 
 class handDetector():
-    def __init__(self, max_hands=1, model_complexity=0, detection_confidence=0.5, tracking_confidence=0.5):
+    def __init__(self, max_hands=2, model_complexity=0, detection_confidence=0.5, tracking_confidence=0.5):
         self.max_hands = max_hands
         self.complexity = model_complexity
         self.d_con = detection_confidence
