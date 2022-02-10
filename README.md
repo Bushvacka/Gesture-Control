@@ -1,8 +1,18 @@
 # Gesture-Control
-Hand tracking module for use in future projects.
+Changes sytem volume based on distance between thumb and index finger.
 
-# OpenCV
-Image capture and manipulation.
+## Requirements
+### OpenCV(Python)
+Intel's computer vision library. Used for image capture and pre-processing.
 
-# MediaPipe
-ML library with hand tracking model.
+```pip install opencv-python```
+
+### MediaPipe
+Google's computer vision library. Used for hand detection and tracking.
+
+Install instructions for each OS can be found [here](https://google.github.io/mediapipe/getting_started/install.html)
+
+### Pycaw
+Python Core Audio Windows Library. Used to interface with system audio devices.
+
+```pip install pycaw```
