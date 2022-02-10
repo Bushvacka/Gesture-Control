@@ -16,7 +16,7 @@ GREEN_COLOR = (0, 224, 0)
 BLACK_COLOR = (0, 0, 0)
 RED_COLOR = (0, 0, 255)
 MIN_DIST = 15
-MAX_DIST = 130
+MAX_DIST = 115
 
 def main():    
     # Initialize volume controller
@@ -28,7 +28,7 @@ def main():
     volume = vol_control.GetMasterVolumeLevelScalar()*100
 
     # Instantiate hand detection module
-    detector = handDetector.handDetector(model_complexity=1, detection_confidence=.6)
+    detector = handDetector.handDetector(detection_confidence=.6)
 
     cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     while (cap.isOpened()):
@@ -55,13 +55,19 @@ def main():
                 if (handedness == "Right"):
                     if thumb and index:
                         dist = math.hypot(thumb[0] - index[0], thumb[1] - index[1])
+                        old_volume = volume
                         volume = np.interp(dist, [MIN_DIST, MAX_DIST], [0, 100])
-                        vol_control.SetMasterVolumeLevelScalar(volume/100.0, None)
+
+                        #Noise Filtering
+                        if (abs(volume - old_volume) > 1):
+                            vol_control.SetMasterVolumeLevelScalar(volume/100.0, None)
+                        else:
+                            volume = old_volume
                         
                         cv2.line(img, thumb, index, BLACK_COLOR, 3)
         # Give an indication of the current volume level
-        cv2.rectangle(img, (10, 10), (50, 110), BLACK_COLOR, 2)
-        cv2.rectangle(img, (11, int(109 - volume)), (49, 109), RED_COLOR, cv2.FILLED)
+        cv2.rectangle(img, (10, 10), (50, 112), BLACK_COLOR, 2)
+        cv2.rectangle(img, (11, int(110 - volume)), (49, 111), RED_COLOR, cv2.FILLED)
                     
         
         cv2.imshow("Image", img)
