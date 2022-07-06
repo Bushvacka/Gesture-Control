@@ -1,6 +1,6 @@
 # Data manipulation
 import math
-from cv2 import FONT_HERSHEY_COMPLEX_SMALL, FONT_HERSHEY_PLAIN
+from cv2 import FONT_HERSHEY_PLAIN
 import numpy as np
 # Image processing
 import cv2
@@ -63,28 +63,10 @@ def main():
                 handedness = results.multi_handedness[i].classification[0].label
                 if (handedness == "Right"):
                     if thumb and index:
-                        old_volume = volume # Save previous volume for noise filtering
-                        # Calculate new volume based on thumb-index distance
-                        dist = math.hypot(thumb[0] - index[0], thumb[1] - index[1])
-                        volume = np.interp(dist, [MIN_DIST, MAX_DIST], [0, 100])
-                        
-                        # Update volume if a significant change has occured
-                        if (abs(volume - old_volume) > 1):
-                            volume_control.SetMasterVolumeLevelScalar(volume/100.0, None)
-                        else:
-                            volume = old_volume
+                        update_volume(volume_control, volume, thumb, index)
                 else:
                     if thumb and index:
-                        old_brightness = brightness # Save previous brightness for noise filtering
-                        # Calculate new brightness based on thumb-index distance
-                        dist = math.sqrt((thumb[0] - index[0])**2 + (thumb[1] - index[1])**2)
-                        brightness = np.interp(dist, [MIN_DIST, MAX_DIST], [0, 100])
-
-                        # Update brightness if a significant change has occured
-                        if (abs(brightness - old_brightness) > 1):
-                            sbc.set_brightness(brightness, INTERNAL_DISPLAY)
-                        else:
-                            brightness = old_brightness
+                        update_brightness(brightness, thumb, index)
         else:
             # Reflect any changes made by the system
             volume = volume_control.GetMasterVolumeLevelScalar() * 100
@@ -104,6 +86,30 @@ def main():
         if (cv2.waitKey(1) & 0xFF == EXIT_KEY):
             cv2.destroyAllWindows()
             break
+
+def update_brightness(brightness, thumb, index):
+    old_brightness = brightness # Save previous brightness for noise filtering
+                        # Calculate new brightness based on thumb-index distance
+    dist = math.sqrt((thumb[0] - index[0])**2 + (thumb[1] - index[1])**2)
+    brightness = np.interp(dist, [MIN_DIST, MAX_DIST], [0, 100])
+
+                        # Update brightness if a significant change has occured
+    if (abs(brightness - old_brightness) > 1):
+        sbc.set_brightness(brightness, INTERNAL_DISPLAY)
+    else:
+        brightness = old_brightness
+
+def update_volume(volume_control, volume, thumb, index):
+    old_volume = volume # Save previous volume for noise filtering
+                        # Calculate new volume based on thumb-index distance
+    dist = math.hypot(thumb[0] - index[0], thumb[1] - index[1])
+    volume = np.interp(dist, [MIN_DIST, MAX_DIST], [0, 100])
+                        
+                        # Update volume if a significant change has occured
+    if (abs(volume - old_volume) > 1):
+        volume_control.SetMasterVolumeLevelScalar(volume/100.0, None)
+    else:
+        volume = old_volume
 
 if __name__ == "__main__":
     main()
